@@ -1,0 +1,20 @@
+FAVICON INSTRUCTIONS
+
+You'll need to add the following files to the public directory for your app icons:
+
+1. favicon.ico - 16x16, 32x32, 48x48 (multi-size ICO file)
+2. logo192.png - 192x192 PNG file
+3. logo512.png - 512x512 PNG file
+
+You can generate these files using a tool like:
+- https://realfavicongenerator.net/
+- https://favicon.io/
+
+Create a simple icon that represents your organization management concept, 
+such as a hierarchical chart structure or interconnected nodes.
+
+Recommended colors:
+- Primary: #3182CE (blue.500 in Chakra UI)
+- Secondary: #38B2AC (teal.500 in Chakra UI)
+
+Once generated, place these files in the public directory before deploying to Vercel. 
