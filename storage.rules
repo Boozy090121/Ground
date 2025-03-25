@@ -1,0 +1,57 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Default deny all
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // Profile images
+    match /profileImages/{userId}/{fileName} {
+      // Anyone can read profile images
+      allow read: if request.auth != null;
+      
+      // Only the user or an admin can write to their profile image
+      allow write: if request.auth != null && 
+                     (request.auth.uid == userId || 
+                      request.auth.token.role == 'admin');
+                      
+      // Validate image uploads
+      allow create: if request.resource.contentType.matches('image/.*') && 
+                       request.resource.size < 5 * 1024 * 1024; // 5MB max
+    }
+    
+    // Exported files (org charts, RACI matrices, etc.)
+    match /exports/{fileType}/{fileName} {
+      // Anyone authenticated can read exports
+      allow read: if request.auth != null;
+      
+      // Only admins and managers can create exports
+      allow create, update: if request.auth != null && 
+                               (request.auth.token.role == 'admin' || 
+                                request.auth.token.role == 'manager');
+                                
+      // Only admins can delete exports
+      allow delete: if request.auth != null && 
+                       request.auth.token.role == 'admin';
+    }
+    
+    // Client-safe exports (limited access documents)
+    match /clientExports/{clientId}/{fileName} {
+      // Anyone authenticated can read client exports they have access to
+      allow read: if request.auth != null && 
+                     (request.auth.token.role == 'admin' || 
+                      request.auth.token.role == 'manager' ||
+                      request.auth.token.clients[clientId] == true);
+                      
+      // Only admins and managers can create and update client exports
+      allow create, update: if request.auth != null && 
+                               (request.auth.token.role == 'admin' || 
+                                request.auth.token.role == 'manager');
+                                
+      // Only admins can delete client exports
+      allow delete: if request.auth != null && 
+                       request.auth.token.role == 'admin';
+    }
+  }
+} 
